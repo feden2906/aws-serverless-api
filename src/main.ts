@@ -2,14 +2,28 @@ import { NestFactory } from '@nestjs/core';
 import serverlessExpress from '@vendia/serverless-express';
 import { Callback, Context, Handler } from 'aws-lambda';
 import { AppModule } from './app.module';
+import express from 'express';
+import { ExpressAdapter } from "@nestjs/platform-express";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 let server: Handler;
 
 async function bootstrap(): Promise<Handler> {
-    const app = await NestFactory.create(AppModule);
+    const expressApp = express();
+
+    const app = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
+
+    const options = new DocumentBuilder()
+        .setTitle('Api documentation')
+        .addBearerAuth({ bearerFormat: 'JWT', in: 'header', scheme: 'bearer', type: 'http' })
+        .setVersion('1.0')
+        .build();
+    const document = SwaggerModule.createDocument(app, options);
+
+    SwaggerModule.setup('api', app, document);
+
     await app.init();
 
-    const expressApp = app.getHttpAdapter().getInstance();
     return serverlessExpress({ app: expressApp });
 }
 
@@ -19,7 +33,5 @@ export const handler: Handler = async (
     callback: Callback,
 ) => {
     server = server ?? (await bootstrap());
-    console.log(1111)
     return server(event, context, callback);
 };
-

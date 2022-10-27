@@ -10,7 +10,11 @@ export class HabitController {
   @Get()
   public async getHabits(@Req() req: any): Promise<any> {
     try {
-
+      console.log(22222222)
+      return {
+        aaa: 'bbb',
+        qqq: '22222222',
+      }
     } catch (error) {
 
     }
@@ -39,6 +43,16 @@ export class HabitController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':habitId')
   public async deleteHabit(): Promise<void> {
+    try {
+    } catch (error) {
+    }
+  }
+
+  @ApiNoContentResponse({ description: 'qqqqqq' })
+  @ApiOperation({ summary: 'delete one habit by ID' })
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete('/sadasdasdsahabitId')
+  public async deleteHabitdd(): Promise<void> {
     try {
     } catch (error) {
     }

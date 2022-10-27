@@ -13,5 +13,9 @@ functions:
     handler: dist/main.handler
     events:
       - http:
-          method: any
-          path: /{any+}
+          method: ANY
+          path: '{proxy+}'
+
+custom:
+    optimize:
+        external: ['swagger-ui-dist']
