@@ -13,8 +13,11 @@ functions:
     handler: dist/main.handler
     events:
       - http:
+          path: /
           method: ANY
-          path: '{proxy+}'
+      - http:
+          path: /{proxy+}
+          method: ANY
 
 custom:
     optimize:
