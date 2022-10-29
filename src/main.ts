@@ -24,7 +24,13 @@ async function bootstrap(): Promise<Handler> {
       whitelist: true,
     }),
   );
-  app.enableCors();
+
+  app.enableCors({
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    credentials: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: '*',
+  });
 
   const options = new DocumentBuilder()
     .setTitle('Api documentation')

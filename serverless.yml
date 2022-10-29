@@ -26,9 +26,9 @@ functions:
       - http:
           path: /{proxy+}
           method: ANY
-#    provisionedConcurrency: 10
-#    reservedConcurrency: 10
 
 custom:
     optimize:
         external: ['swagger-ui-dist']
+    serverlessPluginTypescript:
+      tsConfigFileLocation: './tsconfig.build.json'

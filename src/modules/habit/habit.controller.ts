@@ -13,17 +13,23 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { InjectSentry, SentryService } from '@ntegral/nestjs-sentry';
 
 @ApiTags('habits')
 @Controller('habits')
 @ApiBearerAuth()
 // @UseGuards(UserAuthGuard)
 export class HabitController {
+  constructor(@InjectSentry() private readonly client: SentryService) {}
+
   @ApiOperation({ summary: "get user's habits" })
   @Get()
   public async getHabits(): Promise<any> {
     try {
-      console.log(22222222);
+      this.client.log('test-log', 'LOG');
+      this.client.error('test-error', '', 'ERR');
+      this.client.verbose('INFO-verbose', 'OK');
+
       return {
         aaa: 'bbkkb',
         qqq: '22222222',
