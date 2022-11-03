@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as Sentry from '@sentry/serverless';
 import serverlessExpress from '@vendia/serverless-express';
 import { Callback, Context, Handler } from 'aws-lambda';
 import express from 'express';
@@ -9,6 +10,13 @@ import express from 'express';
 import { AppModule } from './app.module';
 
 let server: Handler;
+
+Sentry.AWSLambda.init({
+  dsn: process.env.SENTRY_DNS,
+  enabled: process.env.NODE_ENV !== 'local',
+  environment: process.env.NODE_ENV,
+  tracesSampleRate: 1.0,
+});
 
 async function bootstrap(): Promise<Handler> {
   const expressApp = express();
@@ -24,7 +32,6 @@ async function bootstrap(): Promise<Handler> {
       whitelist: true,
     }),
   );
-
   app.enableCors({
     allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
     credentials: true,
@@ -49,11 +56,10 @@ async function bootstrap(): Promise<Handler> {
   return serverlessExpress({ app: expressApp });
 }
 
-export const handler: Handler = async (
-  event: any,
-  context: Context,
-  callback: Callback,
-) => {
-  server = server ?? (await bootstrap());
-  return server(event, context, callback);
-};
+export const handler: Handler = Sentry.AWSLambda.wrapHandler(
+  async (event: any, context: Context, callback: Callback) => {
+    server = server ?? (await bootstrap());
+    return server(event, context, callback);
+  },
+  { captureAllSettledReasons: true, flushTimeout: 10 },
+);
